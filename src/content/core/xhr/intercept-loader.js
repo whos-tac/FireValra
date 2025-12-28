@@ -14,6 +14,8 @@
     script.async = false;
     script.defer = false;
 
+    script.addEventListener('load', () => script.remove());
+    script.addEventListener('error', () => script.remove());
+
     (document.head || docEl).appendChild(script);
-    script.remove();
 })();

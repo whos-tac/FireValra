@@ -220,7 +220,7 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 });
 const connectedContentScripts = new Map(); 
 
-const hasDeclarativeNetRequest = !!(chrome?.declarativeNetRequest?.updateEnabledRulesets);
+const hasDeclarativeNetRequest = !!((chrome?.declarativeNetRequest || (typeof browser !== 'undefined' ? browser.declarativeNetRequest : undefined))?.updateEnabledRulesets);
 
 chrome.runtime.onConnect.addListener(port => {
     if (port.name !== 'mutation-reporter') {
