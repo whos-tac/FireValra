@@ -270,12 +270,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'enableServerJoinHeaders':
             if (hasDeclarativeNetRequest) {
                 chrome.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: ['ruleset_2'] });
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
             }
             break;
 
         case 'disableServerJoinHeaders':
             if (hasDeclarativeNetRequest) {
                 chrome.declarativeNetRequest.updateEnabledRulesets({ disableRulesetIds: ['ruleset_2'] });
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
             }
             break;
 
