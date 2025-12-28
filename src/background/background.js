@@ -220,7 +220,8 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 });
 const connectedContentScripts = new Map(); 
 
-const hasDeclarativeNetRequest = !!((chrome?.declarativeNetRequest || (typeof browser !== 'undefined' ? browser.declarativeNetRequest : undefined))?.updateEnabledRulesets);
+const declarativeNetRequest = chrome?.declarativeNetRequest || (typeof browser !== 'undefined' ? browser.declarativeNetRequest : undefined);
+const hasDeclarativeNetRequest = !!(declarativeNetRequest?.updateEnabledRulesets);
 
 chrome.runtime.onConnect.addListener(port => {
     if (port.name !== 'mutation-reporter') {
@@ -251,7 +252,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
         case 'updateOfflineRule':
             if (hasDeclarativeNetRequest) {
-                chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_status"] } : { disableRulesetIds: ["ruleset_status"] });
+                declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_status"] } : { disableRulesetIds: ["ruleset_status"] });
                 sendResponse({ success: true });
             } else {
                 sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
@@ -260,7 +261,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'updateEarlyAccessRule':
             if (hasDeclarativeNetRequest) {
-                chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_3"] } : { disableRulesetIds: ["ruleset_3"] });
+                declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_3"] } : { disableRulesetIds: ["ruleset_3"] });
                 sendResponse({ success: true });
             } else {
                 sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
@@ -269,7 +270,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'enableServerJoinHeaders':
             if (hasDeclarativeNetRequest) {
-                chrome.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: ['ruleset_2'] });
+                declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: ['ruleset_2'] });
                 sendResponse({ success: true });
             } else {
                 sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
@@ -278,7 +279,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'disableServerJoinHeaders':
             if (hasDeclarativeNetRequest) {
-                chrome.declarativeNetRequest.updateEnabledRulesets({ disableRulesetIds: ['ruleset_2'] });
+                declarativeNetRequest.updateEnabledRulesets({ disableRulesetIds: ['ruleset_2'] });
                 sendResponse({ success: true });
             } else {
                 sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
