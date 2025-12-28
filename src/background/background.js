@@ -220,6 +220,8 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 });
 const connectedContentScripts = new Map(); 
 
+const hasDeclarativeNetRequest = !!(chrome?.declarativeNetRequest?.updateEnabledRulesets);
+
 chrome.runtime.onConnect.addListener(port => {
     if (port.name !== 'mutation-reporter') {
         return; 
@@ -248,21 +250,33 @@ chrome.runtime.onConnect.addListener(port => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
         case 'updateOfflineRule':
-            chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_status"] } : { disableRulesetIds: ["ruleset_status"] });
-            sendResponse({ success: true });
+            if (hasDeclarativeNetRequest) {
+                chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_status"] } : { disableRulesetIds: ["ruleset_status"] });
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
+            }
             break;
 
         case 'updateEarlyAccessRule':
-            chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_3"] } : { disableRulesetIds: ["ruleset_3"] });
-            sendResponse({ success: true });
+            if (hasDeclarativeNetRequest) {
+                chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_3"] } : { disableRulesetIds: ["ruleset_3"] });
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: 'declarativeNetRequest unavailable' });
+            }
             break;
 
         case 'enableServerJoinHeaders':
-            chrome.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: ['ruleset_2'] });
+            if (hasDeclarativeNetRequest) {
+                chrome.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: ['ruleset_2'] });
+            }
             break;
 
         case 'disableServerJoinHeaders':
-            chrome.declarativeNetRequest.updateEnabledRulesets({ disableRulesetIds: ['ruleset_2'] });
+            if (hasDeclarativeNetRequest) {
+                chrome.declarativeNetRequest.updateEnabledRulesets({ disableRulesetIds: ['ruleset_2'] });
+            }
             break;
 
 

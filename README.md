@@ -30,7 +30,8 @@
 **Building and installing 2.4**
 - npm install
 - npm run build
-- Import "dist" in your browser
+- Import "dist" in your Chromium-based browser
+- Import "dist-firefox" via `about:debugging` in Firefox (load as a temporary extension)
 
 
 **Importing to browser**

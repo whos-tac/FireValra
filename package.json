@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "npm run clean && node build.js",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist dist-firefox"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
