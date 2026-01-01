@@ -222,6 +222,42 @@ const connectedContentScripts = new Map();
 
 const declarativeNetRequest = chrome?.declarativeNetRequest || (typeof browser !== 'undefined' ? browser.declarativeNetRequest : undefined);
 const hasDeclarativeNetRequest = !!(declarativeNetRequest?.updateEnabledRulesets);
+const scripting = chrome?.scripting;
+
+function runExecuteScript(options) {
+    if (scripting?.executeScript) {
+        return scripting.executeScript(options);
+    }
+    if (chrome.tabs?.executeScript) {
+        const targetTabId = options?.target?.tabId;
+        if (options.func) {
+            const fn = options.func;
+            const args = options.args || [];
+            const code = `(${fn.toString()})(...${JSON.stringify(args)});`;
+            return new Promise((resolve, reject) => {
+                chrome.tabs.executeScript(targetTabId, { code }, (result) => {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+        }
+        if (options.files && options.files.length > 0) {
+            return new Promise((resolve, reject) => {
+                chrome.tabs.executeScript(targetTabId, { file: options.files[0] }, (result) => {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
+        }
+    }
+    return Promise.reject(new Error('scripting API unavailable'));
+}
 
 chrome.runtime.onConnect.addListener(port => {
     if (port.name !== 'mutation-reporter') {
@@ -288,7 +324,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
         case "injectScript":
-            chrome.scripting.executeScript({
+            runExecuteScript({
                 target: { tabId: sender.tab.id },
                 world: "MAIN",
                 func: (codeToInject) => {
@@ -335,11 +371,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'injectMainWorldScript':
             if (sender.tab?.id) {
-                chrome.scripting.executeScript({
+                runExecuteScript({
                     target: { tabId: sender.tab.id },
                     files: [request.path],
                     world: 'MAIN',
-                });
+                }).catch(() => {});
             }
             sendResponse({ success: true });
             break;
