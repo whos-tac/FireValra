@@ -8,9 +8,8 @@
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["intercept.js"],
+      "js": ["intercept-loader.js"],
       "run_at": "document_start",
-      "world": "MAIN",
       "all_frames": false
     },
     {

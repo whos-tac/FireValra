@@ -11,6 +11,13 @@ const bannerText = `/*!
  * This extension is provided AS-IS without warranty.
  */`;
 
+const distDir = 'dist';
+const firefoxDistDir = 'dist-firefox';
+
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
+}
+
 const commonConfig = {
   minify: false,            
   
@@ -51,6 +58,13 @@ esbuild.build({
   entryPoints: ['src/content/core/xhr/intercept.js'],
   outfile: 'dist/intercept.js',
   bundle: false, 
+}).catch(() => process.exit(1));
+
+esbuild.build({
+  ...commonConfig,
+  entryPoints: ['src/content/core/xhr/intercept-loader.js'],
+  outfile: 'dist/intercept-loader.js',
+  bundle: false,
 }).catch(() => process.exit(1));
 
 
@@ -114,15 +128,24 @@ function processDirectory(src, dest) {
 }
 
 if (fs.existsSync('public')) {
-    processDirectory('public', path.join('dist', 'public'));
+    processDirectory('public', path.join(distDir, 'public'));
 }
 
 if (fs.existsSync('manifest.json')) {
     try {
         const manifestContent = fs.readFileSync('manifest.json', 'utf8');
         const manifestJson = JSON.parse(manifestContent);
-        fs.writeFileSync('dist/manifest.json', JSON.stringify(manifestJson)); 
+        fs.writeFileSync(path.join(distDir, 'manifest.json'), JSON.stringify(manifestJson)); 
     } catch (e) {
-        fs.copyFileSync('manifest.json', 'dist/manifest.json');
+        fs.copyFileSync('manifest.json', path.join(distDir, 'manifest.json'));
     }
+}
+
+if (fs.existsSync('manifest.firefox.json') && fs.existsSync(distDir)) {
+    fs.rmSync(firefoxDistDir, { recursive: true, force: true });
+    fs.mkdirSync(firefoxDistDir, { recursive: true });
+    fs.cpSync(distDir, firefoxDistDir, { recursive: true });
+
+    const manifestContent = fs.readFileSync('manifest.firefox.json', 'utf8');
+    fs.writeFileSync(path.join(firefoxDistDir, 'manifest.json'), manifestContent);
 }
