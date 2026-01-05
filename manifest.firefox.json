@@ -36,9 +36,7 @@
   ],
   "permissions": [
     "storage",
-    "tabs"
-  ],
-  "host_permissions": [
+    "tabs",
     "https://games.roblox.com/*",
     "*://*.roblox.com/*",
     "https://gamejoin.roblox.com/v1/join-game-instance",
