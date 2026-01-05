@@ -36,13 +36,8 @@
   ],
   "permissions": [
     "storage",
-    "tabs"
-  ],
-  "host_permissions": [
-    "https://games.roblox.com/*",
-    "*://*.roblox.com/*",
-    "https://gamejoin.roblox.com/v1/join-game-instance",
-    "https://users.roblox.com/*"
+    "tabs",
+    "https://*.roblox.com/*"
   ],
   "background": {
     "scripts": ["background.js"]
